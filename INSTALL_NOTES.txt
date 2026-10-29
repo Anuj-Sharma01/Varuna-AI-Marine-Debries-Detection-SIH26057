@@ -1,0 +1,21 @@
+﻿VARUNA - Python Dependencies
+
+Core:
+PySide6
+opencv-python
+numpy
+ultralytics
+torch
+torchvision
+pyxtf
+reportlab
+
+Install:
+
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+NOTE:
+Torch/CUDA installation may need to be adapted to the target
+machine's NVIDIA GPU and CUDA compatibility.

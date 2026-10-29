@@ -1,0 +1,38 @@
+﻿# Python environments and cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+# Generated results and uploaded mission data
+results/*
+server/results/*
+server/uploads/*
+app/results/*
+demo/*.xtf
+demo/*.XTF
+# Datasets and training artifacts
+datasets/
+data/
+runs/
+wandb/
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# Application caches
+app/_sound_cache/
+**/__pycache__/
+# Generated demo outputs
+demo/VARUNA_DEMO_MISSION/
+demo/processed_test.png
+# Generated reports and logs
+*.log
+*.sqlite3

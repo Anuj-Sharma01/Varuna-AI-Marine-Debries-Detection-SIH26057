@@ -1,0 +1,483 @@
+﻿============================================================
+VARUNA - SIH26057
+TEAM HANDOFF DOCUMENT
+============================================================
+
+Project:
+AI-Powered Automated Underwater Marine Debris and
+Anomaly Detection System using Side-Scan Sonar Imagery
+
+Project Name:
+VARUNA
+
+PS:
+SIH26057
+
+============================================================
+1. CURRENT STATUS
+============================================================
+
+The machine-learning pipeline and core XTF inference pipeline
+are COMPLETE.
+
+The remaining work is primarily application integration,
+offline map integration, UI integration and final testing.
+
+DO NOT RETRAIN THE MODEL.
+
+The final model has already been trained and independently
+evaluated on DRISHTI, MILCO and GhostVision test sets.
+
+============================================================
+2. FINAL MODEL
+============================================================
+
+Model:
+YOLO11s
+
+Final checkpoint:
+
+sonar_model\models\varuna_final.pt
+
+The model is LOCKED.
+
+Do not modify, retrain or replace the final checkpoint unless
+the entire team explicitly decides to restart the ML pipeline.
+
+============================================================
+3. FINAL INDEPENDENT TEST RESULTS
+============================================================
+
+DRISHTI TEST
+Images: 699
+Instances: 901
+
+Precision: 0.810
+Recall: 0.693
+mAP50: 0.731
+mAP50-95: 0.579
+
+Per class:
+
+Submarine Pipeline:
+Precision: 0.994
+Recall: 0.992
+mAP50: 0.995
+mAP50-95: 0.825
+
+Shipwreck:
+Precision: 0.600
+Recall: 0.402
+mAP50: 0.423
+mAP50-95: 0.245
+
+Ghost Net:
+Precision: 0.995
+Recall: 1.000
+mAP50: 0.995
+mAP50-95: 0.984
+
+Mine Cylinder:
+Precision: 0.651
+Recall: 0.378
+mAP50: 0.512
+mAP50-95: 0.262
+
+
+MILCO/NOMBO TEST
+Images: 117
+Instances: 44
+
+Mine Cylinder:
+Precision: 0.655
+Recall: 0.560
+mAP50: 0.556
+mAP50-95: 0.317
+
+
+GHOSTVISION TEST
+Images: 398
+Instances: 567
+
+Crab Pot:
+Precision: 0.378
+Recall: 0.434
+mAP50: 0.351
+mAP50-95: 0.150
+
+NOTE:
+The GhostVision test result demonstrates that crab-pot
+detection works but has weaker cross-domain performance.
+This is a documented limitation of the final prototype.
+
+============================================================
+4. DATASETS USED FOR TRAINING
+============================================================
+
+DRISHTI:
+Used for:
+- submarine pipeline
+- shipwreck
+- ghost net
+- mine cylinder
+
+MILCO/NOMBO:
+- MILCO mapped to mine_cylinder
+- NOMBO annotations discarded as hard negatives
+
+GhostVision:
+- Crab-Pot mapped to crab_pot
+- Empty/background samples preserved
+
+NLM preprocessing is applied consistently during training
+and inference.
+
+============================================================
+5. CORE INFERENCE PIPELINE - COMPLETE
+============================================================
+
+Raw XTF
+  |
+  v
+XTF parser
+  |
+  v
+Sonar frame extraction
+  |
+  v
+NLM preprocessing
+  |
+  v
+YOLO11s inference
+  |
+  v
+Class-specific confidence filtering
+  |
+  v
+XTF navigation + sonar geometry
+  |
+  v
+Geotagged detections
+  |
+  +--> JSON
+  |
+  +--> CSV
+  |
+  +--> Annotated sonar images
+  |
+  +--> PDF mission report
+
+============================================================
+6. XTF DEMONSTRATION
+============================================================
+
+Demo file:
+
+demo\VARUNA_DEMO_MISSION.xtf
+
+The synthetic XTF is structurally valid and is used for the
+prototype demonstration.
+
+Current successful run:
+
+Frames processed: 7
+Accepted detections: 6
+
+Detection counts:
+
+Submarine Pipeline: 1
+Ghost Net: 1
+Shipwreck: 2
+Mine Cylinder: 2
+
+Current demo results:
+
+demo\VARUNA_DEMO_MISSION\mission_results.json
+demo\VARUNA_DEMO_MISSION\mission_results.csv
+
+Annotated frames:
+
+demo\VARUNA_DEMO_MISSION\overlays\
+
+PDF:
+
+demo\VARUNA_DEMO_MISSION\VARUNA_Final_Mission_Report.pdf
+
+============================================================
+7. GEOTAGGING
+============================================================
+
+Geotagging is implemented.
+
+Each detection contains:
+
+- latitude
+- longitude
+- event number
+- ping number
+- sensor depth
+- altitude
+- heading
+- channel
+- across-track offset
+- ground range
+- slant range
+- bounding box
+- confidence
+- class
+
+Current geotagging method:
+
+XTF ping navigation + sonar pixel geometry
+
+IMPORTANT:
+The demonstration uses synthetic navigation data.
+Coordinates are demonstration data and are not survey-grade.
+
+============================================================
+8. REPORTING - COMPLETE
+============================================================
+
+Working:
+
+JSON
+CSV
+Annotated sonar frames
+PDF mission report
+
+The final PDF contains actual annotated sonar images.
+
+============================================================
+9. OVERLAY VISUALIZATION - COMPLETE
+============================================================
+
+Bounding boxes are drawn on sonar frames.
+
+Example classes:
+
+- submarine_pipeline
+- ghost_net
+- shipwreck
+- mine_cylinder
+
+Overlay output:
+
+results\xtf\VARUNA_DEMO_MISSION\overlays\
+
+============================================================
+10. REMAINING WORK
+============================================================
+
+PRIORITY 1:
+OFFLINE MAP
+
+Complete the existing geotag/map UI.
+
+Requirements:
+
+- Fully offline
+- No OpenStreetMap network dependency
+- AUV trajectory
+- Detection markers
+- Mission coordinates
+- Detection class
+- Confidence
+- Latitude
+- Longitude
+- Depth
+- Heading
+- Event
+- Ping
+
+Use mission_results.json as the data source.
+
+Recommended:
+Coordinate-based offline mission map.
+
+------------------------------------------------------------
+
+PRIORITY 2:
+GUI INTEGRATION
+
+Connect the existing PySide6 application to the working
+XTF backend.
+
+Required workflow:
+
+Upload XTF
+    |
+    v
+Analyze Mission
+    |
+    v
+Process XTF
+    |
+    v
+Run YOLO
+    |
+    v
+Geotag
+    |
+    v
+Generate JSON/CSV/PDF
+    |
+    v
+Update map
+
+The user should not need to run Python scripts manually.
+
+------------------------------------------------------------
+
+PRIORITY 3:
+ANALYZE PAGE
+
+Connect:
+
+- XTF file picker
+- Model selection
+- Analyze button
+- Progress indicator
+- Frame count
+- Detection count
+- Class summary
+- Detection preview
+
+------------------------------------------------------------
+
+PRIORITY 4:
+MAP PAGE
+
+Replace the placeholder/map demo data with actual
+mission_results.json data.
+
+Show:
+
+AUV route
+Detection markers
+Detection popup
+Mission summary
+
+------------------------------------------------------------
+
+PRIORITY 5:
+REPORT PAGE
+
+Connect buttons to:
+
+- Open PDF
+- Open CSV
+- Open JSON
+- Open results folder
+
+------------------------------------------------------------
+
+PRIORITY 6:
+MISSION HISTORY
+
+Store completed missions.
+
+Suggested fields:
+
+Mission ID
+Timestamp
+XTF filename
+Detection count
+Highest confidence
+Status
+Start coordinate
+End coordinate
+
+------------------------------------------------------------
+
+PRIORITY 7:
+FINAL TEST
+
+Perform a complete clean run:
+
+1. Start application
+2. Upload demo XTF
+3. Click Analyze
+4. Confirm 7 frames processed
+5. Confirm detections generated
+6. Confirm map updates
+7. Open PDF
+8. Open CSV
+9. Open JSON
+10. Confirm no crashes
+11. Confirm application works without internet
+
+============================================================
+11. IMPORTANT FILES
+============================================================
+
+app\marine_app.py
+Main PySide6 application.
+
+app\sonar_integration.py
+YOLO/inference integration.
+
+app\xtf_mission.py
+XTF parser and geotagging.
+
+app\xtf_inference.py
+XTF -> frames -> YOLO -> geotagging -> results.
+
+app\report_generator.py
+Mission reporting support.
+
+app\severity.py
+Detection/mission severity logic.
+
+add_overlays.py
+Creates annotated sonar frames.
+
+generate_final_report.py
+Generates the working final mission PDF.
+
+test_xtf_inference.py
+Standalone XTF inference test.
+
+sonar_model\models\varuna_final.pt
+FINAL LOCKED MODEL.
+
+============================================================
+12. DO NOT DO
+============================================================
+
+DO NOT:
+
+- retrain the model
+- change the final checkpoint
+- rebuild datasets
+- change the YOLO architecture
+- spend time optimizing mAP
+- add another training dataset
+- require internet for the demo
+- replace the working XTF backend unnecessarily
+
+Focus on application integration.
+
+============================================================
+13. FINAL DEMO TARGET
+============================================================
+
+The final application should allow a judge to:
+
+1. Launch VARUNA.
+2. Upload an XTF mission.
+3. Start analysis.
+4. See sonar detections.
+5. See bounding boxes.
+6. See confidence values.
+7. See geotagged detections.
+8. See AUV trajectory.
+9. Open detection details.
+10. Generate/download JSON.
+11. Generate/download CSV.
+12. Generate/open PDF report.
+
+Everything should work offline.
+
+============================================================
+END OF HANDOFF
+============================================================
